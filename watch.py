@@ -53,6 +53,18 @@ def load_env():
 
 
 def fetch(url):
+    # curl_cffi imita la huella TLS de Chrome (evita muchos bloqueos anti-bot)
+    try:
+        from curl_cffi import requests as creq
+    except ImportError:
+        creq = None
+    if creq:
+        r = creq.get(url, impersonate="chrome", timeout=30,
+                     headers={"Accept-Language": HEADERS["Accept-Language"]})
+        if r.status_code >= 400:
+            raise urllib.error.HTTPError(url, r.status_code, "HTTP error", None, None)
+        return r.text
+
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=30) as r:
         data = r.read()
