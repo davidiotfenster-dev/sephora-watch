@@ -1,32 +1,12 @@
-name: Vigilante Sephora
-
-on:
-  schedule:
-    - cron: "*/10 * * * *"
-  workflow_dispatch:
-    inputs:
-      test:
-        description: "Enviar notificación de prueba"
-        type: boolean
-        default: true
-
-permissions:
-  contents: write
-
-concurrency:
-  group: sephora-watch
-  cancel-in-progress: false
-
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install curl_cffi
 
       - name: Comprobar disponibilidad
         run: python watch.py ${{ inputs.test && '--test' || '' }}
